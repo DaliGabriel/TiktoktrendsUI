@@ -81,7 +81,7 @@ const resolvers = {
       const totalHashtags = (await query.count().get()).data().count;
 
       // Ordering is crucial for cursor-based pagination to work correctly.
-      query = query.orderBy("scrapedAt", "desc"); // Example: Order by scrapedAt in descending order
+      query = query.orderBy("rank", "asc").orderBy("scrapedAt", "desc"); // Example: Order by scrapedAt in descending order
 
       //*last document fetched
       if (after) {

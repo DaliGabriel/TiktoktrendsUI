@@ -73,22 +73,47 @@ const Table: React.FC<TableProps> = ({
   }
 
   function getThemeClass(theme: string) {
-    // Example theme-based styling - adjust as needed
     switch (theme) {
-      case "Technology":
-        return "bg-blue-100/60 dark:bg-gray-800 text-blue-500";
-      case "Entertainment":
-        return "bg-purple-100/60 dark:bg-gray-800 text-purple-500";
-      case "Sports":
-        return "bg-red-100/60 dark:bg-gray-800 text-red-500";
-      case "News":
-        return "bg-yellow-100/60 dark:bg-gray-800 text-yellow-500";
+      case "Tech & Electronics":
+        return "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300";
+      case "News & Entertainment":
+        return "bg-yellow-100/60 dark:bg-yellow-800 text-yellow-500 dark:text-yellow-300";
+      case "Sports & Outdoor":
+        return "bg-red-100/60 dark:bg-red-800 text-red-500 dark:text-red-300";
       case "General":
-        return "bg-gray-100/60 dark:bg-gray-800 text-gray-500";
+        return "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300";
       case "Apparel & Accessories":
-        return "bg-emerald-100/60 dark:bg-gray-800 text-emerald-500";
+        return "bg-emerald-100/60 dark:bg-emerald-800 text-emerald-500 dark:text-emerald-300";
+      case "Baby, Kids & Maternity":
+        return "bg-pink-100/60 dark:bg-pink-800 text-pink-500 dark:text-pink-300";
+      case "Beauty & Personal Care":
+        return "bg-fuchsia-100/60 dark:bg-fuchsia-800 text-fuchsia-500 dark:text-fuchsia-300";
+      case "Business Services":
+        return "bg-indigo-100/60 dark:bg-indigo-800 text-indigo-500 dark:text-indigo-300";
+      case "Education":
+        return "bg-sky-100/60 dark:bg-sky-800 text-sky-500 dark:text-sky-300";
+      case "Financial Services":
+        return "bg-teal-100/60 dark:bg-teal-800 text-teal-500 dark:text-teal-300";
+      case "Food & Beverage":
+        return "bg-lime-100/60 dark:bg-lime-800 text-lime-500 dark:text-lime-300";
+      case "Games":
+        return "bg-violet-100/60 dark:bg-violet-800 text-violet-500 dark:text-violet-300";
+      case "Health":
+        return "bg-rose-100/60 dark:bg-rose-800 text-rose-500 dark:text-rose-300";
+      case "Home Improvement":
+        return "bg-orange-100/60 dark:bg-orange-800 text-orange-500 dark:text-orange-300";
+      case "Life Services":
+        return "bg-cyan-100/60 dark:bg-cyan-800 text-cyan-500 dark:text-cyan-300";
+      case "Household Products":
+        return "bg-amber-100/60 dark:bg-amber-800 text-amber-500 dark:text-amber-300";
+      case "Pets":
+        return "bg-purple-100/60 dark:bg-purple-800 text-purple-500 dark:text-purple-300";
+      case "Travel":
+        return "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300";
+      case "Vehicle & Transportation":
+        return "bg-slate-100/60 dark:bg-slate-800 text-slate-500 dark:text-slate-300";
       default:
-        return "bg-gray-100/60 dark:bg-gray-800 text-gray-500";
+        return "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300";
     }
   }
 
@@ -233,30 +258,32 @@ const Table: React.FC<TableProps> = ({
         </div>
 
         {/* Pagination controls */}
-        <div className="mt-6 sm:items-center sm:justify-between ">
-          <div className="items-center mt-4 gap-x-4 sm:mt-0">
-            <button
-              onClick={() => loadMore()}
-              className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md sm:w-auto gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800"
-            >
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={loadMore}
+            className="px-5 py-2 text-sm text-gray-700 capitalize transition-colors duration-200 bg-white border rounded-md gap-x-2 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800"
+          >
+            <div className="flex justify-center my-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="w-5 h-5 rtl:-scale-x-100"
+                className="w-5 h-5 animate-spin"
               >
+                {" "}
+                {/* Spinner SVG */}
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
+                  d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
                 />
               </svg>
+            </div>
 
-              <span>Load more</span>
-            </button>
-          </div>
+            <span className="my-2">Load More</span>
+          </button>
         </div>
       </section>
     </>
