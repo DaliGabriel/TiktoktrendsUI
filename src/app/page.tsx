@@ -3,6 +3,7 @@
 import { useQuery, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import Table from "./components/Table";
+import { useEffect, useState } from "react";
 
 // Define your GraphQL query
 const GET_TRENDS = gql`
@@ -35,6 +36,7 @@ const GET_TRENDS = gql`
         hasNextPage
         endCursor
       }
+      totalHashtags
     }
   }
 `;
@@ -60,51 +62,71 @@ interface TrendsData {
       hasNextPage: boolean;
       endCursor: string;
     };
+    totalHashtags: number;
   };
 }
 
 export default function Home() {
   const router = useRouter(); // Get the router instance
 
-  const { loading, error, data, fetchMore } = useQuery<TrendsData>(GET_TRENDS, {
-    variables: { first: 10 }, // Initial fetch
-    onError: (error) => {
-      if (error.message === "Not authenticated!") {
-        router.push("/login");
-      }
-    },
-  });
+  const [selectedCountry, setSelectedCountry] = useState("MX"); // Default country
+  const [pageSize, setPageSize] = useState(10); // Initial page size
 
-  if (loading) return <p>Loading...</p>;
+  const { loading, error, data, fetchMore, refetch } = useQuery<TrendsData>(
+    GET_TRENDS,
+    {
+      variables: { first: pageSize, country: selectedCountry }, // Initial fetch
+      onError: (error) => {
+        if (error.message === "Not authenticated!") {
+          router.push("/login");
+        }
+      },
+    }
+  );
+
+  // Refetch data when selectedCountry changes
+  useEffect(() => {
+    if (data) {
+      refetch({ country: selectedCountry, first: pageSize });
+    }
+  }, [selectedCountry, refetch, data, pageSize]);
+
+  if (loading)
+    return (
+      <>
+        <div className="loop cubes">
+          <div className="item cubes"></div>
+          <div className="item cubes"></div>
+          <div className="item cubes"></div>
+          <div className="item cubes"></div>
+          <div className="item cubes"></div>
+          <div className="item cubes"></div>
+        </div>
+      </>
+    );
   if (error) return <p>Error: {error.message}</p>;
 
-  const loadMore = () => {
-    fetchMore({
-      variables: {
-        after: data?.trends.pageInfo.endCursor,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
-        return {
-          trends: {
-            ...fetchMoreResult.trends,
-            //*remove this to update the trends array instead to add to
-            edges: [...prev.trends.edges, ...fetchMoreResult.trends.edges],
-          },
-        };
-      },
-    });
+  const handleLoadMore = () => {
+    setPageSize(pageSize + 10); // Increase page size by 10
   };
+  console.log(data?.trends.totalHashtags);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Table trends={data?.trends.edges || []} />
+        <Table
+          trends={data?.trends.edges || []}
+          totalHashtags={data?.trends.totalHashtags || 0}
+          selectedCountry={selectedCountry}
+          setSelectedCountry={setSelectedCountry} // Pass down the state and setter
+          loadMore={handleLoadMore}
+        />
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <p>Footer</p>
       </footer>
     </div>
+
     // <div>
     //   {data?.trends.edges.map(({ node }) => (
     //     <div key={node.hashtag}>

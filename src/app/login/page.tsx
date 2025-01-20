@@ -25,7 +25,7 @@ const Page = () => {
         const { token } = await response.json();
         localStorage.setItem("token", token); // Store the token
         // Redirect or update UI to indicate successful login
-        console.log("Login successful, token:", token);
+        // console.log("Login successful, token:", token);
         window.location.href = "/"; // Redirect to the home page (or any other page)
       } else {
         const data = await response.json();

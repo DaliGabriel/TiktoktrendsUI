@@ -22,14 +22,15 @@ type TrendEdge {
   node: Trend!
 }
 
-type TrendConnection {
-  edges: [TrendEdge!]!
-  pageInfo: PageInfo!
-}
-
 type PageInfo {
   hasNextPage: Boolean!
   endCursor: String
+}
+
+type TrendConnection {
+  edges: [TrendEdge!]!
+  pageInfo: PageInfo!
+  totalHashtags: Int!
 }
 
 type Query {
@@ -40,17 +41,6 @@ type Query {
 //*Auth
 interface MyContext {
   userId?: string;
-}
-
-// 2. Define Resolvers (with TypeScript types)
-interface Trend {
-  country: string;
-  hashtag: string;
-  numberDays: number | null; // Allow null if these fields might be missing
-  posts: string | null;
-  rank: string;
-  scrapedAt: string;
-  theme: string;
 }
 
 interface QueryTrendsArgs {
@@ -87,8 +77,10 @@ const resolvers = {
         query = query.where("theme", "==", theme);
       }
 
+      // Use the count() method on the query
+      const totalHashtags = (await query.count().get()).data().count;
+
       // Ordering is crucial for cursor-based pagination to work correctly.
-      // Choose a field that makes sense in your context (e.g., 'scrapedAt', 'rank', or a combination)
       query = query.orderBy("scrapedAt", "desc"); // Example: Order by scrapedAt in descending order
 
       //*last document fetched
@@ -102,6 +94,7 @@ const resolvers = {
 
       const snapshot = await query.get();
 
+      //*Trend data
       const edges = snapshot.docs.map((doc: any) => {
         const data = doc.data();
         const timestamp = data.scrapedAt as admin.firestore.Timestamp;
@@ -153,6 +146,7 @@ const resolvers = {
           hasNextPage,
           endCursor,
         },
+        totalHashtags,
       };
     },
   },
@@ -166,6 +160,7 @@ const server = new ApolloServer({
 
 // Export the handler as the default API route export
 const handler = startServerAndCreateNextHandler<NextRequest>(server, {
+  //*add validation to the context api
   context: async (req) => {
     try {
       // 1. Get token from Authorization header:

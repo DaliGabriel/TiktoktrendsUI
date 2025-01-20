@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     // Accessing the request body
     const data = await request.json();
 
-    console.log(data);
+    // console.log(data);
 
     //compare credentials
     if (
