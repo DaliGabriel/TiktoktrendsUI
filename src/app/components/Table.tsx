@@ -1,5 +1,100 @@
 "use client";
 import React from "react";
+const categoriesData = [
+  {
+    name: "Tech & Electronics",
+    themeClass:
+      "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300",
+  },
+  {
+    name: "News & Entertainment",
+    themeClass:
+      "bg-yellow-100/60 dark:bg-yellow-800 text-yellow-500 dark:text-yellow-300",
+  },
+  {
+    name: "Sports & Outdoor",
+    themeClass: "bg-red-100/60 dark:bg-red-800 text-red-500 dark:text-red-300",
+  },
+  {
+    name: "General",
+    themeClass:
+      "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300",
+  },
+  {
+    name: "Apparel & Accessories",
+    themeClass:
+      "bg-emerald-100/60 dark:bg-emerald-800 text-emerald-500 dark:text-emerald-300",
+  },
+  {
+    name: "Baby, Kids & Maternity",
+    themeClass:
+      "bg-pink-100/60 dark:bg-pink-800 text-pink-500 dark:text-pink-300",
+  },
+  {
+    name: "Beauty & Personal Care",
+    themeClass:
+      "bg-fuchsia-100/60 dark:bg-fuchsia-800 text-fuchsia-500 dark:text-fuchsia-300",
+  },
+  {
+    name: "Business Services",
+    themeClass:
+      "bg-indigo-100/60 dark:bg-indigo-800 text-indigo-500 dark:text-indigo-300",
+  },
+  {
+    name: "Education",
+    themeClass: "bg-sky-100/60 dark:bg-sky-800 text-sky-500 dark:text-sky-300",
+  },
+  {
+    name: "Financial Services",
+    themeClass:
+      "bg-teal-100/60 dark:bg-teal-800 text-teal-500 dark:text-teal-300",
+  },
+  {
+    name: "Food & Beverage",
+    themeClass:
+      "bg-lime-100/60 dark:bg-lime-800 text-lime-500 dark:text-lime-300",
+  },
+  {
+    name: "Games",
+    themeClass:
+      "bg-violet-100/60 dark:bg-violet-800 text-violet-500 dark:text-violet-300",
+  },
+  {
+    name: "Health",
+    themeClass:
+      "bg-rose-100/60 dark:bg-rose-800 text-rose-500 dark:text-rose-300",
+  },
+  {
+    name: "Home Improvement",
+    themeClass:
+      "bg-orange-100/60 dark:bg-orange-800 text-orange-500 dark:text-orange-300",
+  },
+  {
+    name: "Life Services",
+    themeClass:
+      "bg-cyan-100/60 dark:bg-cyan-800 text-cyan-500 dark:text-cyan-300",
+  },
+  {
+    name: "Household Products",
+    themeClass:
+      "bg-amber-100/60 dark:bg-amber-800 text-amber-500 dark:text-amber-300",
+  },
+  {
+    name: "Pets",
+    themeClass:
+      "bg-purple-100/60 dark:bg-purple-800 text-purple-500 dark:text-purple-300",
+  },
+  {
+    name: "Travel",
+    themeClass:
+      "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300",
+  },
+  {
+    name: "Vehicle & Transportation",
+    themeClass:
+      "bg-slate-100/60 dark:bg-slate-800 text-slate-500 dark:text-slate-300",
+  },
+];
 
 interface Trend {
   country: string;
@@ -20,6 +115,8 @@ interface TableProps {
   totalHashtags: number;
   selectedCountry: string; // Receive the state
   setSelectedCountry: (country: string) => void; // Receive the setter
+  selectedCategory: string; // Receive the state
+  setSelectedCategory: (country: string) => void; // Receive the setter
   loadMore: () => void; // Receive the setter
 }
 
@@ -28,6 +125,8 @@ const Table: React.FC<TableProps> = ({
   totalHashtags,
   selectedCountry,
   setSelectedCountry,
+  selectedCategory,
+  setSelectedCategory,
   loadMore,
 }) => {
   function generateTableRows(trendsData: Edge[]) {
@@ -73,48 +172,10 @@ const Table: React.FC<TableProps> = ({
   }
 
   function getThemeClass(theme: string) {
-    switch (theme) {
-      case "Tech & Electronics":
-        return "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300";
-      case "News & Entertainment":
-        return "bg-yellow-100/60 dark:bg-yellow-800 text-yellow-500 dark:text-yellow-300";
-      case "Sports & Outdoor":
-        return "bg-red-100/60 dark:bg-red-800 text-red-500 dark:text-red-300";
-      case "General":
-        return "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300";
-      case "Apparel & Accessories":
-        return "bg-emerald-100/60 dark:bg-emerald-800 text-emerald-500 dark:text-emerald-300";
-      case "Baby, Kids & Maternity":
-        return "bg-pink-100/60 dark:bg-pink-800 text-pink-500 dark:text-pink-300";
-      case "Beauty & Personal Care":
-        return "bg-fuchsia-100/60 dark:bg-fuchsia-800 text-fuchsia-500 dark:text-fuchsia-300";
-      case "Business Services":
-        return "bg-indigo-100/60 dark:bg-indigo-800 text-indigo-500 dark:text-indigo-300";
-      case "Education":
-        return "bg-sky-100/60 dark:bg-sky-800 text-sky-500 dark:text-sky-300";
-      case "Financial Services":
-        return "bg-teal-100/60 dark:bg-teal-800 text-teal-500 dark:text-teal-300";
-      case "Food & Beverage":
-        return "bg-lime-100/60 dark:bg-lime-800 text-lime-500 dark:text-lime-300";
-      case "Games":
-        return "bg-violet-100/60 dark:bg-violet-800 text-violet-500 dark:text-violet-300";
-      case "Health":
-        return "bg-rose-100/60 dark:bg-rose-800 text-rose-500 dark:text-rose-300";
-      case "Home Improvement":
-        return "bg-orange-100/60 dark:bg-orange-800 text-orange-500 dark:text-orange-300";
-      case "Life Services":
-        return "bg-cyan-100/60 dark:bg-cyan-800 text-cyan-500 dark:text-cyan-300";
-      case "Household Products":
-        return "bg-amber-100/60 dark:bg-amber-800 text-amber-500 dark:text-amber-300";
-      case "Pets":
-        return "bg-purple-100/60 dark:bg-purple-800 text-purple-500 dark:text-purple-300";
-      case "Travel":
-        return "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300";
-      case "Vehicle & Transportation":
-        return "bg-slate-100/60 dark:bg-slate-800 text-slate-500 dark:text-slate-300";
-      default:
-        return "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300";
-    }
+    const category = categoriesData.find((cat) => cat.name === theme);
+    return category
+      ? category.themeClass
+      : "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300"; // Default style
   }
 
   return (
@@ -197,32 +258,6 @@ const Table: React.FC<TableProps> = ({
                       >
                         <button className="flex items-center gap-x-3 focus:outline-none">
                           <span>Hashtag</span>
-
-                          <svg
-                            className="h-3"
-                            viewBox="0 0 10 11"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M2.13347 0.0999756H2.98516L5.01902 4.79058H3.86226L3.45549 3.79907H1.63772L1.24366 4.79058H0.0996094L2.13347 0.0999756ZM2.54025 1.46012L1.96822 2.92196H3.11227L2.54025 1.46012Z"
-                              fill="currentColor"
-                              stroke="currentColor"
-                              strokeWidth="0.1"
-                            />
-                            <path
-                              d="M0.722656 9.60832L3.09974 6.78633H0.811638V5.87109H4.35819V6.78633L2.01925 9.60832H4.43446V10.5617H0.722656V9.60832Z"
-                              fill="currentColor"
-                              stroke="currentColor"
-                              strokeWidth="0.1"
-                            />
-                            <path
-                              d="M8.45558 7.25664V7.40664H8.60558H9.66065C9.72481 7.40664 9.74667 7.42274 9.75141 7.42691C9.75148 7.42808 9.75146 7.42993 9.75116 7.43262C9.75001 7.44265 9.74458 7.46304 9.72525 7.49314C9.72522 7.4932 9.72518 7.49326 9.72514 7.49332L7.86959 10.3529L7.86924 10.3534C7.83227 10.4109 7.79863 10.418 7.78568 10.418C7.77272 10.418 7.73908 10.4109 7.70211 10.3534L7.70177 10.3529L5.84621 7.49332C5.84617 7.49325 5.84612 7.49318 5.84608 7.49311C5.82677 7.46302 5.82135 7.44264 5.8202 7.43262C5.81989 7.42993 5.81987 7.42808 5.81994 7.42691C5.82469 7.42274 5.84655 7.40664 5.91071 7.40664H6.96578H7.11578V7.25664V0.633865C7.11578 0.42434 7.29014 0.249976 7.49967 0.249976H8.07169C8.28121 0.249976 8.45558 0.42434 8.45558 0.633865V7.25664Z"
-                              fill="currentColor"
-                              stroke="currentColor"
-                              strokeWidth="0.3"
-                            />
-                          </svg>
                         </button>
                       </th>
 
@@ -230,7 +265,19 @@ const Table: React.FC<TableProps> = ({
                         scope="col"
                         className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                       >
-                        Category
+                        <select
+                          value={selectedCategory}
+                          onChange={(e) => setSelectedCategory(e.target.value)}
+                          className={`select-category ${getThemeClass(
+                            selectedCategory
+                          )} cursor-pointer`}
+                        >
+                          {categoriesData.map((category) => (
+                            <option key={category.name} value={category.name}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
                       </th>
 
                       <th
@@ -270,7 +317,7 @@ const Table: React.FC<TableProps> = ({
                 viewBox="0 0 24 24"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="w-5 h-5 animate-spin"
+                className="w-5 h-5"
               >
                 {" "}
                 {/* Spinner SVG */}

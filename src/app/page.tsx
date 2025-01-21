@@ -70,24 +70,30 @@ export default function Home() {
   const router = useRouter(); // Get the router instance
 
   const [selectedCountry, setSelectedCountry] = useState("MX"); // Default country
+  const [selectedCategory, setSelectedCategory] = useState("General"); // Default country
   const [pageSize, setPageSize] = useState(10); // Initial page size
 
-  const { loading, error, data, fetchMore, refetch } = useQuery<TrendsData>(
-    GET_TRENDS,
-    {
-      variables: { first: pageSize, country: selectedCountry }, // Initial fetch
-      onError: (error) => {
-        if (error.message === "Not authenticated!") {
-          router.push("/login");
-        }
-      },
-    }
-  );
+  const { loading, error, data, refetch } = useQuery<TrendsData>(GET_TRENDS, {
+    variables: {
+      first: pageSize,
+      country: selectedCountry,
+      theme: selectedCategory,
+    }, // Initial fetch
+    onError: (error) => {
+      if (error.message === "Not authenticated!") {
+        router.push("/login");
+      }
+    },
+  });
 
   // Refetch data when selectedCountry changes
   useEffect(() => {
     if (data) {
-      refetch({ country: selectedCountry, first: pageSize });
+      refetch({
+        country: selectedCountry,
+        first: pageSize,
+        theme: selectedCategory,
+      });
     }
   }, [selectedCountry, refetch, data, pageSize]);
 
@@ -107,7 +113,7 @@ export default function Home() {
   if (error) return <p>Error: {error.message}</p>;
 
   const handleLoadMore = () => {
-    setPageSize(pageSize + 10); // Increase page size by 10
+    setPageSize(pageSize + 10);
   };
   console.log(data?.trends.totalHashtags);
 
@@ -119,12 +125,14 @@ export default function Home() {
           totalHashtags={data?.trends.totalHashtags || 0}
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry} // Pass down the state and setter
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory} // Pass down the state and setter
           loadMore={handleLoadMore}
         />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+      {/* <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
         <p>Footer</p>
-      </footer>
+      </footer> */}
     </div>
 
     // <div>
