@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to parse JSON" },
+      { error: "Failed to parse JSON, error: "+error },
       { status: 400 }
     );
   }

@@ -11,8 +11,8 @@ const typeDefs = `
 type Trend {
   country: String
   hashtag: String
-  posts: String
-  rank: String
+  posts: Int!
+  rank: Int!
   scrapedAt: String
   theme: String
 }
@@ -34,8 +34,18 @@ type TrendConnection {
 }
 
 type Query {
-  trends(country: String, rank: String, theme: String, first: Int, after: String): TrendConnection
+  trends(
+    hashtag: String
+    country: String
+    rank: Int
+    posts: Int
+    theme: String
+    first: Int
+    after: String
+    targetDate: String
+  ): TrendConnection
 }
+
 `;
 
 //*Auth
@@ -49,21 +59,49 @@ interface QueryTrendsArgs {
   theme?: string;
   first?: number;
   after?: string;
+  targetDate?: string;
+}
+interface Trend {
+  country: string;
+  hashtag: string;
+  posts: number | null; // Allow null as per your data
+  rank: number;
+  scrapedAt: string;
+  theme: string;
+  numberDays?: number | null; // Add this if your data sometimes includes numberDays
+}
+
+interface TrendEdge {
+  cursor: string;
+  node: Trend;
+}
+
+interface PageInfo {
+  hasNextPage: boolean;
+  endCursor: string | null; // Allow null as per your logic
+}
+interface TrendConnection {
+  edges: TrendEdge[];
+  pageInfo: PageInfo;
+  totalHashtags: number;
 }
 
 const resolvers = {
   Query: {
     trends: async (
       _: unknown,
-      { country, rank, theme, first = 10, after }: QueryTrendsArgs,
+      { country, rank, theme, first = 10, after, targetDate }: QueryTrendsArgs,
       context: MyContext
-    ): Promise<any> => {
+    ): Promise<TrendConnection> => {
       // Authentication Check:
       if (!context.userId) {
         throw new Error("Not authenticated!");
       }
 
-      let query: any = db.collection("trends");
+      let query: admin.firestore.Query = db.collection("trends");
+
+      // Use the count() method on the query
+      const totalHashtags = (await query.count().get()).data().count;
 
       if (country) {
         query = query.where("country", "==", country);
@@ -77,11 +115,20 @@ const resolvers = {
         query = query.where("theme", "==", theme);
       }
 
-      // Use the count() method on the query
-      const totalHashtags = (await query.count().get()).data().count;
+      // *** Date Filtering (Corrected) ***
+      if (targetDate) {
+        const startDate = new Date(targetDate); // Start of the target date
+        const endDate = new Date(targetDate);
+        endDate.setUTCDate(endDate.getUTCDate() + 1); // Increment to the next day
+        endDate.setUTCHours(0, 0, 0, -1); // Set to last millisecond of the target date
+
+        query = query
+          .where("scrapedAt", ">=", startDate)
+          .where("scrapedAt", "<=", endDate);
+      }
 
       // Ordering is crucial for cursor-based pagination to work correctly.
-      query = query.orderBy("rank", "asc").orderBy("scrapedAt", "desc"); // Example: Order by scrapedAt in descending order
+      query = query.orderBy("scrapedAt", "desc").orderBy("rank", "asc"); // Example: Order by scrapedAt in descending order
 
       //*last document fetched
       if (after) {
@@ -95,32 +142,34 @@ const resolvers = {
       const snapshot = await query.get();
 
       //*Trend data
-      const edges = snapshot.docs.map((doc: any) => {
-        const data = doc.data();
-        const timestamp = data.scrapedAt as admin.firestore.Timestamp;
-        const date = timestamp.toDate();
-        const formatter = new Intl.DateTimeFormat("es-MX", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-          second: "numeric",
-          timeZoneName: "short",
-        });
-        return {
-          cursor: doc.id, // Use document ID as cursor
-          node: {
-            country: data.country,
-            hashtag: data.hashtag,
-            numberDays: data.numberDays || null,
-            posts: data.posts || null,
-            rank: data.rank,
-            scrapedAt: formatter.format(date),
-            theme: data.theme,
-          },
-        };
-      });
+      const edges = snapshot.docs.map(
+        (doc: admin.firestore.QueryDocumentSnapshot) => {
+          const data = doc.data();
+          const timestamp = data.scrapedAt as admin.firestore.Timestamp;
+          const date = timestamp.toDate();
+          const formatter = new Intl.DateTimeFormat("es-MX", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            timeZoneName: "short",
+          });
+          return {
+            cursor: doc.id, // Use document ID as cursor
+            node: {
+              country: data.country,
+              hashtag: data.hashtag,
+              numberDays: data.numberDays || null,
+              posts: data.posts || null,
+              rank: data.rank,
+              scrapedAt: formatter.format(date),
+              theme: data.theme,
+            },
+          };
+        }
+      );
 
       let endCursor = null;
       if (edges.length > 0) {

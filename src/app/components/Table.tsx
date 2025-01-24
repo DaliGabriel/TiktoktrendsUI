@@ -1,96 +1,116 @@
 "use client";
 import React from "react";
+import { format, addDays, subDays, set } from "date-fns";
 const categoriesData = [
   {
     name: "Tech & Electronics",
+    value: "Tech & Electronics",
     themeClass:
       "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300",
   },
   {
     name: "News & Entertainment",
+    value: "News & Entertainment",
     themeClass:
       "bg-yellow-100/60 dark:bg-yellow-800 text-yellow-500 dark:text-yellow-300",
   },
   {
     name: "Sports & Outdoor",
+    value: "Sports & Outdoor",
     themeClass: "bg-red-100/60 dark:bg-red-800 text-red-500 dark:text-red-300",
   },
   {
-    name: "General",
+    name: "Top Trend 🔥",
+    value: "General",
     themeClass:
-      "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300",
+      "bg-yellow-200 dark:bg-yellow-600 text-yellow-700 dark:text-yellow-200",
   },
   {
     name: "Apparel & Accessories",
+    value: "Apparel & Accessories",
     themeClass:
       "bg-emerald-100/60 dark:bg-emerald-800 text-emerald-500 dark:text-emerald-300",
   },
   {
     name: "Baby, Kids & Maternity",
+    value: "Baby, Kids & Maternity",
     themeClass:
       "bg-pink-100/60 dark:bg-pink-800 text-pink-500 dark:text-pink-300",
   },
   {
     name: "Beauty & Personal Care",
+    value: "Beauty & Personal Care",
     themeClass:
       "bg-fuchsia-100/60 dark:bg-fuchsia-800 text-fuchsia-500 dark:text-fuchsia-300",
   },
   {
     name: "Business Services",
+    value: "Business Services",
     themeClass:
       "bg-indigo-100/60 dark:bg-indigo-800 text-indigo-500 dark:text-indigo-300",
   },
   {
     name: "Education",
+    value: "Education",
     themeClass: "bg-sky-100/60 dark:bg-sky-800 text-sky-500 dark:text-sky-300",
   },
   {
     name: "Financial Services",
+    value: "Financial Services",
     themeClass:
       "bg-teal-100/60 dark:bg-teal-800 text-teal-500 dark:text-teal-300",
   },
   {
     name: "Food & Beverage",
+    value: "Food & Beverage",
     themeClass:
       "bg-lime-100/60 dark:bg-lime-800 text-lime-500 dark:text-lime-300",
   },
   {
     name: "Games",
+    value: "Games",
     themeClass:
       "bg-violet-100/60 dark:bg-violet-800 text-violet-500 dark:text-violet-300",
   },
   {
     name: "Health",
+    value: "Health",
     themeClass:
       "bg-rose-100/60 dark:bg-rose-800 text-rose-500 dark:text-rose-300",
   },
   {
     name: "Home Improvement",
+    value: "Home Improvement",
     themeClass:
       "bg-orange-100/60 dark:bg-orange-800 text-orange-500 dark:text-orange-300",
   },
   {
     name: "Life Services",
+    value: "Life Services",
     themeClass:
       "bg-cyan-100/60 dark:bg-cyan-800 text-cyan-500 dark:text-cyan-300",
   },
   {
     name: "Household Products",
+    value: "Household Products",
     themeClass:
       "bg-amber-100/60 dark:bg-amber-800 text-amber-500 dark:text-amber-300",
   },
   {
     name: "Pets",
+    value: "Pets",
     themeClass:
       "bg-purple-100/60 dark:bg-purple-800 text-purple-500 dark:text-purple-300",
   },
   {
     name: "Travel",
+    value: "Travel",
     themeClass:
       "bg-blue-100/60 dark:bg-blue-800 text-blue-500 dark:text-blue-300",
   },
   {
     name: "Vehicle & Transportation",
+    value: "Vehicle & Transportation",
     themeClass:
       "bg-slate-100/60 dark:bg-slate-800 text-slate-500 dark:text-slate-300",
   },
@@ -99,8 +119,8 @@ const categoriesData = [
 interface Trend {
   country: string;
   hashtag: string;
-  posts: string;
-  rank: string;
+  posts: number;
+  rank: number;
   scrapedAt: string;
   theme: string;
 }
@@ -117,6 +137,8 @@ interface TableProps {
   setSelectedCountry: (country: string) => void; // Receive the setter
   selectedCategory: string; // Receive the state
   setSelectedCategory: (country: string) => void; // Receive the setter
+  selectedDate: Date | null; // Correct type
+  setSelectedDate: (date: Date | null) => void; // Correct type
   loadMore: () => void; // Receive the setter
 }
 
@@ -127,6 +149,8 @@ const Table: React.FC<TableProps> = ({
   setSelectedCountry,
   selectedCategory,
   setSelectedCategory,
+  selectedDate,
+  setSelectedDate,
   loadMore,
 }) => {
   function generateTableRows(trendsData: Edge[]) {
@@ -149,7 +173,7 @@ const Table: React.FC<TableProps> = ({
               trend.node.theme
             )}`}
           >
-            {trend.node.theme}
+            {trend.node.theme == "General" ? "Top Trend 🔥" : trend.node.theme}
           </div>
         </td>
         <td className="px-4 py-4 text-sm whitespace-nowrap">
@@ -172,11 +196,28 @@ const Table: React.FC<TableProps> = ({
   }
 
   function getThemeClass(theme: string) {
-    const category = categoriesData.find((cat) => cat.name === theme);
+    const category = categoriesData.find((cat) => cat.value === theme);
     return category
       ? category.themeClass
       : "bg-gray-100/60 dark:bg-gray-800 text-gray-500 dark:text-gray-300"; // Default style
   }
+
+  const handleDateChange = (date: string) => {
+    if (!date) {
+      setSelectedDate(null);
+      return;
+    }
+
+    const newDate = new Date(date);
+
+    // Adjust the date to set the time to the start of the selected day in the user's local timezone
+    newDate.setHours(0, 0, 0, 0);
+
+    // This is crucial: Add one day to the date
+    newDate.setDate(newDate.getDate() + 1);
+
+    setSelectedDate(newDate);
+  };
 
   return (
     <>
@@ -218,7 +259,7 @@ const Table: React.FC<TableProps> = ({
             </button>
           </div>
 
-          <div className="relative flex items-center mt-4 md:mt-0">
+          {/* <div className="relative flex items-center mt-4 md:mt-0">
             <span className="absolute">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -241,7 +282,7 @@ const Table: React.FC<TableProps> = ({
               placeholder="Search"
               className="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Table content */}
@@ -256,24 +297,26 @@ const Table: React.FC<TableProps> = ({
                         scope="col"
                         className="py-3.5 px-4 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                       >
-                        <button className="flex items-center gap-x-3 focus:outline-none">
+                        <div className="flex items-center gap-x-3 focus:outline-none">
                           <span>Hashtag</span>
-                        </button>
+                        </div>
                       </th>
 
                       <th
                         scope="col"
                         className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                       >
+                        <strong>Select Category:</strong>
+                        <br />
                         <select
                           value={selectedCategory}
                           onChange={(e) => setSelectedCategory(e.target.value)}
                           className={`select-category ${getThemeClass(
                             selectedCategory
-                          )} cursor-pointer`}
+                          )} cursor-pointer mt-2`}
                         >
                           {categoriesData.map((category) => (
-                            <option key={category.name} value={category.name}>
+                            <option key={category.name} value={category.value}>
                               {category.name}
                             </option>
                           ))}
@@ -291,7 +334,19 @@ const Table: React.FC<TableProps> = ({
                         scope="col"
                         className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400"
                       >
-                        Date
+                        <div className="flex flex-col space-y-2">
+                          <strong>Select Date:</strong>
+                          <input
+                            type="date"
+                            value={
+                              selectedDate
+                                ? format(selectedDate, "yyyy-MM-dd")
+                                : ""
+                            }
+                            onChange={(e) => handleDateChange(e.target.value)}
+                            className="mt-2 px-3 py-2 border rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 dark:focus:ring-blue-400 focus:outline-none focus:ring focus:ring-opacity-40"
+                          />
+                        </div>
                       </th>
                     </tr>
                   </thead>

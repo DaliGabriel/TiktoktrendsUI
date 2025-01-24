@@ -31,7 +31,7 @@ const Page = () => {
         const data = await response.json();
         setError(data.error || "Login failed");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError("An error occurred during login");
       console.error("Login error:", error);
     } finally {

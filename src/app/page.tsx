@@ -4,6 +4,7 @@ import { useQuery, gql } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import Table from "./components/Table";
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
 
 // Define your GraphQL query
 const GET_TRENDS = gql`
@@ -11,8 +12,9 @@ const GET_TRENDS = gql`
     $first: Int
     $after: String
     $country: String
-    $rank: String
+    $rank: Int
     $theme: String
+    $targetDate: String
   ) {
     trends(
       first: $first
@@ -20,6 +22,7 @@ const GET_TRENDS = gql`
       country: $country
       rank: $rank
       theme: $theme
+      targetDate: $targetDate
     ) {
       edges {
         cursor
@@ -42,10 +45,10 @@ const GET_TRENDS = gql`
 `;
 
 interface Trend {
-  country: string;
   hashtag: string;
-  posts: string;
-  rank: string;
+  country: string;
+  rank: number;
+  posts: number;
   scrapedAt: string;
   theme: string;
 }
@@ -71,6 +74,7 @@ export default function Home() {
 
   const [selectedCountry, setSelectedCountry] = useState("MX"); // Default country
   const [selectedCategory, setSelectedCategory] = useState("General"); // Default country
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date()); // Use correct type
   const [pageSize, setPageSize] = useState(10); // Initial page size
 
   const { loading, error, data, refetch } = useQuery<TrendsData>(GET_TRENDS, {
@@ -78,6 +82,7 @@ export default function Home() {
       first: pageSize,
       country: selectedCountry,
       theme: selectedCategory,
+      targetDate: selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined,
     }, // Initial fetch
     onError: (error) => {
       if (error.message === "Not authenticated!") {
@@ -88,14 +93,25 @@ export default function Home() {
 
   // Refetch data when selectedCountry changes
   useEffect(() => {
+    console.log(selectedDate);
     if (data) {
       refetch({
         country: selectedCountry,
         first: pageSize,
         theme: selectedCategory,
+        targetDate: selectedDate
+          ? format(selectedDate, "yyyy-MM-dd")
+          : undefined,
       });
     }
-  }, [selectedCountry, refetch, data, pageSize]);
+  }, [
+    selectedCountry,
+    refetch,
+    data,
+    pageSize,
+    selectedCategory,
+    selectedDate,
+  ]);
 
   if (loading)
     return (
@@ -110,12 +126,12 @@ export default function Home() {
         </div>
       </>
     );
+
   if (error) return <p>Error: {error.message}</p>;
 
   const handleLoadMore = () => {
     setPageSize(pageSize + 10);
   };
-  console.log(data?.trends.totalHashtags);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -127,6 +143,8 @@ export default function Home() {
           setSelectedCountry={setSelectedCountry} // Pass down the state and setter
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory} // Pass down the state and setter
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate} // Pass down the state and setter
           loadMore={handleLoadMore}
         />
       </main>
