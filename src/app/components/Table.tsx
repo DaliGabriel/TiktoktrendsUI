@@ -387,6 +387,7 @@ const Table: React.FC<TableProps> = ({
             <span className="my-2">Load More</span>
           </button>
         </div>
+        
       </section>
     </>
   );
