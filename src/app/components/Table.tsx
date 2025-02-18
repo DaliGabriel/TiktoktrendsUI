@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { format, addDays, subDays, set } from "date-fns";
+import { format } from "date-fns";
 const categoriesData = [
   {
     name: "Tech & Electronics",
@@ -387,7 +387,6 @@ const Table: React.FC<TableProps> = ({
             <span className="my-2">Load More</span>
           </button>
         </div>
-        
       </section>
     </>
   );
