@@ -1,4 +1,8 @@
 "use client";
+import {
+  CheckIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/react/16/solid";
 import React, { useState } from "react";
 
 const Page = () => {
@@ -6,6 +10,20 @@ const Page = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [userCopied, setUserCopied] = useState(false);
+  const [passwordCopied, setPasswordCopied] = useState(false);
+
+  const handleCopyUser = () => {
+    navigator.clipboard.writeText("fda9392hf[+#${5667");
+    setUserCopied(true);
+    setTimeout(() => setUserCopied(false), 2000); // Reset after 2 seconds
+  };
+
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText("fda93967fasd$#hf[+{5667");
+    setPasswordCopied(true);
+    setTimeout(() => setPasswordCopied(false), 2000); // Reset after 2 seconds
+  };
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -54,31 +72,63 @@ const Page = () => {
           <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
         )}
 
-        <div className="relative mt-2">
-          <input
-            placeholder="Enter email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-white border border-gray-200 px-4 py-3 pr-12 text-sm w-full rounded-lg shadow-sm"
-            required
-          />
-          {/* You might want to add an icon or something in this span for visual effect */}
-          <span className="absolute right-3 top-1/2 -translate-y-1/2"></span>
+        <div className="relative mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            User:{" "}
+            <span className="text-xs text-gray-500 ml-1 relative">
+              {"fda9392hf[+#${5667"}
+              <span
+                className="absolute right-[-20px] top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-indigo-500"
+                onClick={handleCopyUser}
+              >
+                {userCopied ? (
+                  <CheckIcon className="h-4 w-4 text-green-500" />
+                ) : (
+                  <ClipboardDocumentListIcon className="h-4 w-4" />
+                )}
+              </span>
+            </span>
+          </label>
+          <div className="relative">
+            <input
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-white border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 pr-10 text-sm w-full rounded-md shadow-sm"
+              required
+            />
+          </div>
         </div>
-        <div className="relative mt-2">
+        <div className="relative mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Password:{" "}
+            <span className="text-xs text-gray-500 ml-1 relative">
+              {"fda93967fasd$#hf[+{5667"}
+              <span
+                className="absolute right-[-20px] top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-indigo-500"
+                onClick={handleCopyPassword}
+              >
+                {passwordCopied ? (
+                  <CheckIcon className="h-4 w-4 text-green-500" />
+                ) : (
+                  <ClipboardDocumentListIcon className="h-4 w-4" />
+                )}
+              </span>
+            </span>
+          </label>
           <input
             type="password"
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-white border border-gray-200 px-4 py-3 pr-12 text-sm w-full rounded-lg shadow-sm"
+            className="bg-white border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 pr-10 text-sm w-full rounded-md shadow-sm"
             required
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="block mt-5 py-3 px-5 bg-indigo-600 text-white text-sm font-medium w-full rounded-lg uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+          className="block mt-6 py-3 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium w-full rounded-md uppercase disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? "Signing in..." : "Sign in"}
         </button>

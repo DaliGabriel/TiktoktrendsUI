@@ -12,6 +12,7 @@
     "@apollo/client": "^3.12.6",
     "@apollo/server": "^4.11.3",
     "@as-integrations/next": "^3.2.0",
+    "@heroicons/react": "^2.2.0",
     "date-fns": "^4.1.0",
     "firebase-admin": "^13.0.2",
     "graphql": "^16.10.0",
