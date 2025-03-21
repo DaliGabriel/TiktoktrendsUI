@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import Table from "./components/Table";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import Loading from "./components/Loading";
+import Error from "./components/Error";
+import { TrendsData } from "../types/trends";
 
 // Define your GraphQL query
 const GET_TRENDS = gql`
@@ -12,6 +15,7 @@ const GET_TRENDS = gql`
     $first: Int
     $after: String
     $country: String
+    $hashtag: String
     $rank: Int
     $theme: String
     $targetDate: String
@@ -19,6 +23,7 @@ const GET_TRENDS = gql`
     trends(
       first: $first
       after: $after
+      hashtag: $hashtag
       country: $country
       rank: $rank
       theme: $theme
@@ -44,31 +49,6 @@ const GET_TRENDS = gql`
   }
 `;
 
-interface Trend {
-  hashtag: string;
-  country: string;
-  rank: number;
-  posts: number;
-  scrapedAt: string;
-  theme: string;
-}
-
-interface Edge {
-  cursor: string;
-  node: Trend;
-}
-
-interface TrendsData {
-  trends: {
-    edges: Edge[];
-    pageInfo: {
-      hasNextPage: boolean;
-      endCursor: string;
-    };
-    totalHashtags: number;
-  };
-}
-
 export default function Home() {
   const router = useRouter(); // Get the router instance
 
@@ -76,15 +56,17 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("General"); // Default country
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date()); // Use correct type
   const [pageSize, setPageSize] = useState(10); // Initial page size
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { loading, error, data, refetch } = useQuery<TrendsData>(GET_TRENDS, {
     variables: {
       first: pageSize,
+      hashtag: searchTerm,
       country: selectedCountry,
       theme: selectedCategory,
       targetDate: selectedDate ? format(selectedDate, "yyyy-MM-dd") : undefined,
     }, // Initial fetch
-    onError: (error) => {
+    onError: (error) => { 
       if (error.message === "Not authenticated!") {
         router.push("/login");
       }
@@ -97,6 +79,7 @@ export default function Home() {
     if (data) {
       refetch({
         country: selectedCountry,
+        hashtag: searchTerm,
         first: pageSize,
         theme: selectedCategory,
         targetDate: selectedDate
@@ -111,34 +94,28 @@ export default function Home() {
     pageSize,
     selectedCategory,
     selectedDate,
+    searchTerm,
   ]);
-
-  if (loading)
-    return (
-      <>
-        <div className="loop cubes">
-          <div className="item cubes"></div>
-          <div className="item cubes"></div>
-          <div className="item cubes"></div>
-          <div className="item cubes"></div>
-          <div className="item cubes"></div>
-          <div className="item cubes"></div>
-        </div>
-      </>
-    );
-
-  if (error) return <p>Error: {error.message}</p>;
 
   const handleLoadMore = () => {
     setPageSize(pageSize + 10);
   };
 
+  if (loading) return <Loading />;
+
+  if (error) return <Error message={error.message} />;
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <h1>Hello</h1>
         <Table
           trends={data?.trends.edges || []}
           totalHashtags={data?.trends.totalHashtags || 0}
+
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm} // Pass down the state and setter
+
           selectedCountry={selectedCountry}
           setSelectedCountry={setSelectedCountry} // Pass down the state and setter
           selectedCategory={selectedCategory}
@@ -148,20 +125,6 @@ export default function Home() {
           loadMore={handleLoadMore}
         />
       </main>
-      {/* <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <p>Footer</p>
-      </footer> */}
     </div>
-
-    // <div>
-    //   {data?.trends.edges.map(({ node }) => (
-    //     <div key={node.hashtag}>
-    //       <h3>{node.hashtag}</h3>
-    //     </div>
-    //   ))}
-    //   {data?.trends.pageInfo.hasNextPage && (
-    //     <button onClick={loadMore}>Load More</button>
-    //   )}
-    // </div>
   );
 }

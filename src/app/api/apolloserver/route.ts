@@ -4,6 +4,8 @@ import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import { NextRequest } from "next/server";
 import admin from "firebase-admin";
 import jwt from "jsonwebtoken";
+import { AuthContext } from "@/types/auth";
+import { QueryTrendsArgs, TrendConnection } from "../../../types/trends";
 
 // 1. Define GraphQL Schema (Type Definitions)
 const typeDefs = `
@@ -48,50 +50,20 @@ type Query {
 
 `;
 
-//*Auth
-interface MyContext {
-  userId?: string;
-}
-
-interface QueryTrendsArgs {
-  country?: string;
-  rank?: string;
-  theme?: string;
-  first?: number;
-  after?: string;
-  targetDate?: string;
-}
-interface Trend {
-  country: string;
-  hashtag: string;
-  posts: number | null; // Allow null as per your data
-  rank: number;
-  scrapedAt: string;
-  theme: string;
-  numberDays?: number | null; // Add this if your data sometimes includes numberDays
-}
-
-interface TrendEdge {
-  cursor: string;
-  node: Trend;
-}
-
-interface PageInfo {
-  hasNextPage: boolean;
-  endCursor: string | null; // Allow null as per your logic
-}
-interface TrendConnection {
-  edges: TrendEdge[];
-  pageInfo: PageInfo;
-  totalHashtags: number;
-}
-
 const resolvers = {
   Query: {
     trends: async (
       _: unknown,
-      { country, rank, theme, first = 10, after, targetDate }: QueryTrendsArgs,
-      context: MyContext
+      {
+        hashtag,
+        country,
+        rank,
+        theme,
+        first = 10,
+        after,
+        targetDate,
+      }: QueryTrendsArgs,
+      context: AuthContext
     ): Promise<TrendConnection> => {
       // Authentication Check:
       if (!context.userId) {
@@ -102,6 +74,10 @@ const resolvers = {
 
       // Use the count() method on the query
       const totalHashtags = (await query.count().get()).data().count;
+
+      if (hashtag) {
+        query = query.where("hashtag", "==", hashtag);
+      }
 
       if (country) {
         query = query.where("country", "==", country);

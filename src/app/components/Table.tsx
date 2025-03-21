@@ -1,6 +1,9 @@
 "use client";
-import React from "react";
 import { format } from "date-fns";
+import Link from "next/link";
+import React, { ChangeEvent, useState } from "react";
+import { TableProps } from "../../types/table";
+import { Edge } from "../../types/trends";
 const categoriesData = [
   {
     name: "Tech & Electronics",
@@ -116,35 +119,10 @@ const categoriesData = [
   },
 ];
 
-interface Trend {
-  country: string;
-  hashtag: string;
-  posts: number;
-  rank: number;
-  scrapedAt: string;
-  theme: string;
-}
-
-interface Edge {
-  cursor: string;
-  node: Trend;
-}
-
-interface TableProps {
-  trends: Edge[];
-  totalHashtags: number;
-  selectedCountry: string; // Receive the state
-  setSelectedCountry: (country: string) => void; // Receive the setter
-  selectedCategory: string; // Receive the state
-  setSelectedCategory: (country: string) => void; // Receive the setter
-  selectedDate: Date | null; // Correct type
-  setSelectedDate: (date: Date | null) => void; // Correct type
-  loadMore: () => void; // Receive the setter
-}
-
 const Table: React.FC<TableProps> = ({
   trends,
   totalHashtags,
+  setSearchTerm,
   selectedCountry,
   setSelectedCountry,
   selectedCategory,
@@ -153,14 +131,22 @@ const Table: React.FC<TableProps> = ({
   setSelectedDate,
   loadMore,
 }) => {
+  const [searchKeyboard, setsearchKeyboard] = useState("");
+
   function generateTableRows(trendsData: Edge[]) {
     // console.log(trendsData);
     return trendsData.map((trend) => (
       <tr key={trend?.cursor}>
         <td className="px-4 py-4 text-sm font-medium whitespace-nowrap">
           <div>
-            <h2 className="font-medium text-gray-800 dark:text-white ">
-              {trend.node.hashtag}
+            <h2 className="font-medium text-gray-800 dark:text-white">
+              <Link
+                href={`https://www.tiktok.com/tag/${trend.node.hashtag}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {trend.node.hashtag}
+              </Link>
             </h2>
             <p className="text-sm font-normal text-gray-600 dark:text-gray-400">
               {trend.node.country}
@@ -219,6 +205,26 @@ const Table: React.FC<TableProps> = ({
     setSelectedDate(newDate);
   };
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setsearchKeyboard(e.target.value);
+  };
+
+  const handleSearch = () => {
+    if (searchKeyboard.trim() === "") {
+      setSearchTerm("");
+      return;
+    }
+    const searchQuery = `# ${searchKeyboard}`;
+    setSearchTerm(searchQuery);
+    setsearchKeyboard("");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <>
       <section className="container px-4 mx-auto">
@@ -259,7 +265,8 @@ const Table: React.FC<TableProps> = ({
             </button>
           </div>
 
-          {/* <div className="relative flex items-center mt-4 md:mt-0">
+          {/* Search bar */}
+          <div className="relative flex items-center mt-4 md:mt-0">
             <span className="absolute">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -268,6 +275,7 @@ const Table: React.FC<TableProps> = ({
                 strokeWidth="1.5"
                 stroke="currentColor"
                 className="w-5 h-5 mx-3 text-gray-400 dark:text-gray-600"
+                onClick={handleSearch} // Trigger search on SVG click
               >
                 <path
                   strokeLinecap="round"
@@ -281,8 +289,10 @@ const Table: React.FC<TableProps> = ({
               type="text"
               placeholder="Search"
               className="block w-full py-1.5 pr-5 text-gray-700 bg-white border border-gray-200 rounded-lg md:w-80 placeholder-gray-400/70 pl-11 rtl:pr-11 rtl:pl-5 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+              onChange={handleChange}
+              onKeyDown={handleKeyDown} // Trigger search on Enter key
             />
-          </div> */}
+          </div>
         </div>
 
         {/* Table content */}
